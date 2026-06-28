@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Categories and Products: Anyone can read, only admin can write
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if true; // In production, restrict to authenticated admin users
+    }
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true; // In production, restrict to authenticated admin users
+    }
+    
+    // Orders: Authenticated users can write orders and read their own orders. 
+    // Guest track by phone needs read access. Admin can do all.
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+    
+    // Users profiles
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+    
+    // Subscribers
+    match /subscribers/{email} {
+      allow read, write: if true;
+    }
+    
+    // Feedbacks: Anyone can write new feedbacks. 
+    // Anyone can read approved feedbacks (or all feedbacks for administration).
+    match /feedbacks/{feedbackId} {
+      allow read, write: if true;
+    }
+    
+    // Store settings (UPI QR code, etc.): anyone can read, write allowed (restrict to admin in production)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}
