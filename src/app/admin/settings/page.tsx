@@ -96,11 +96,11 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-10 max-w-3xl">
+    <div className="p-4 md:p-8 lg:p-10 max-w-3xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <h1 className="text-2xl font-serif text-charcoal font-semibold mb-1">Store Settings</h1>
-        <p className="text-sm text-charcoal/50">Manage your UPI payment details displayed to customers at checkout.</p>
+        <p className="text-xs md:text-sm text-charcoal/50">Manage your UPI payment details displayed to customers at checkout.</p>
       </div>
 
       {/* UPI Details Card */}

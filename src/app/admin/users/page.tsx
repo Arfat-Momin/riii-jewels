@@ -53,12 +53,12 @@ export default function AdminUsersPage() {
   const userToDelete = users.find(u => u.uid === confirmDeleteUid);
 
   return (
-    <div className="p-6 lg:p-8 bg-cream min-h-screen">
+    <div className="p-4 md:p-8 bg-cream min-h-screen">
 
       {/* Confirm Delete Modal */}
       {confirmDeleteUid && userToDelete && (
         <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-8 text-center">
+          <div className="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 sm:p-8 text-center">
             <div className="w-16 h-16 bg-rose/10 rounded-full flex items-center justify-center mx-auto mb-5">
               <AlertTriangle className="w-8 h-8 text-rose" />
             </div>
@@ -75,13 +75,13 @@ export default function AdminUsersPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmDeleteUid(null)}
-                className="flex-1 border border-charcoal/15 text-charcoal/70 py-3 text-xs uppercase tracking-wider hover:border-charcoal/30 transition-colors rounded-sm"
+                className="flex-1 border border-charcoal/15 text-charcoal/70 py-2.5 sm:py-3 text-[10px] sm:text-xs uppercase tracking-wider hover:border-charcoal/30 transition-colors rounded-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(confirmDeleteUid)}
-                className="flex-1 bg-rose text-white py-3 text-xs uppercase tracking-wider hover:bg-rose/80 transition-colors rounded-sm font-semibold"
+                className="flex-1 bg-rose text-white py-2.5 sm:py-3 text-[10px] sm:text-xs uppercase tracking-wider hover:bg-rose/80 transition-colors rounded-sm font-semibold"
               >
                 Delete
               </button>
@@ -90,16 +90,16 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-charcoal tracking-wide">Registered Users</h1>
-          <p className="text-charcoal/40 text-sm mt-1">{users.length} total users</p>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-charcoal tracking-wide">Registered Users</h1>
+          <p className="text-charcoal/40 text-xs md:text-sm mt-1">{users.length} total users</p>
         </div>
         <button
           onClick={fetchUsers}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-4 py-2 rounded-sm hover:border-charcoal/30"
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm hover:border-charcoal/30"
         >
-          <RefreshCw className="w-4 h-4" /> Refresh
+          <RefreshCw className="w-4 h-4" /> <span className="hidden xs:inline">Refresh</span>
         </button>
       </div>
 

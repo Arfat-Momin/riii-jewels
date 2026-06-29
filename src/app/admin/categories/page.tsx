@@ -186,26 +186,28 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="p-8 bg-cream min-h-screen font-sans">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="font-serif text-3xl font-bold text-charcoal tracking-wide">Categories</h1>
-        <div className="flex gap-3">
+    <div className="p-4 md:p-8 bg-cream min-h-screen font-sans">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="font-serif text-2xl md:text-3xl font-bold text-charcoal tracking-wide">Categories</h1>
+        <div className="flex gap-2 sm:gap-3">
           <button
             onClick={openBulkAdd}
-            className="border border-gold text-gold-dark hover:bg-gold hover:text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm transition-all duration-300 cursor-pointer text-sm bg-ivory"
+            className="border border-gold text-gold-dark hover:bg-gold hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm transition-all duration-300 cursor-pointer text-xs sm:text-sm bg-ivory"
           >
-            <Layers className="w-4 h-4" /> Bulk Add
+            <Layers className="w-4 h-4" /> <span className="hidden xs:inline">Bulk Add</span><span className="xs:hidden">Bulk</span>
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-gold hover:bg-gold-dark text-charcoal hover:text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-md shadow-gold/15 transition-all duration-300 cursor-pointer text-sm"
+            className="bg-gold hover:bg-gold-dark text-charcoal hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-md shadow-gold/15 transition-all duration-300 cursor-pointer text-xs sm:text-sm"
           >
             <Plus className="w-4 h-4 stroke-[3]" /> Add Category
           </button>
         </div>
       </div>
 
-      <div className="bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-hidden">
+      {/* ── DESKTOP TABLE ── */}
+      <div className="hidden md:block bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-cream-dark/30 border-b border-cream-dark text-xs text-charcoal-light uppercase tracking-wider font-semibold">
@@ -243,11 +245,40 @@ export default function CategoriesPage() {
         </table>
       </div>
 
+      {/* ── MOBILE CARDS ── */}
+      <div className="md:hidden space-y-3">
+        {categories.length === 0 && (
+          <div className="text-center py-16 text-charcoal/40 text-sm">No categories yet.</div>
+        )}
+        {categories.map((cat) => (
+          <div key={cat.id} className="bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-hidden p-4 flex items-center gap-4">
+            {cat.imageUrl ? (
+              <img src={cat.imageUrl} alt={cat.name} className="w-16 h-16 object-cover rounded-lg border border-cream-dark flex-shrink-0" />
+            ) : (
+              <div className="w-16 h-16 bg-cream-dark/50 rounded-lg flex items-center justify-center text-[10px] text-charcoal-light/40 font-medium flex-shrink-0 text-center leading-tight">No Image</div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-charcoal text-base truncate">{cat.name}</p>
+              <p className="text-xs text-charcoal-light/60 mt-0.5 truncate">{cat.slug}</p>
+            </div>
+            <div className="flex flex-col gap-3 flex-shrink-0">
+              <button onClick={() => openEdit(cat)} className="text-gold-dark hover:text-charcoal transition-colors" title="Edit">
+                <Edit2 className="w-5 h-5" />
+              </button>
+              <button onClick={() => handleDelete(cat.id)} className="text-red-400 hover:text-red-600 transition-colors" title="Delete">
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── ADD / EDIT MODAL ── */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-ivory border border-cream-dark rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 border-b border-cream-dark/50 pb-4">
-              <h2 className="font-serif text-2xl font-bold text-charcoal">{editingId ? "Edit Category" : "Add New Category"}</h2>
+        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
+          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full sm:max-w-md max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-5 border-b border-cream-dark/50 pb-4">
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-charcoal">{editingId ? "Edit Category" : "Add New Category"}</h2>
               <button onClick={resetForm} className="text-charcoal-light/50 hover:text-charcoal transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
@@ -302,7 +333,7 @@ export default function CategoriesPage() {
                   ) : (
                     <UploadCloud className="w-8 h-8 text-gold mb-2" />
                   )}
-                  <p className="text-sm font-medium">{isUploading ? "Uploading to Imgbb..." : "Click or drag image here"}</p>
+                  <p className="text-sm font-medium text-center">{isUploading ? "Uploading..." : "Tap or drag image here"}</p>
                 </div>
 
                 <div className="flex items-center gap-4 text-xs text-charcoal-light/40 uppercase tracking-widest font-semibold my-2">
@@ -318,7 +349,7 @@ export default function CategoriesPage() {
                     type="text"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Paste image URL here (e.g. https://...)"
+                    placeholder="Paste image URL here"
                     className="w-full border border-cream-dark rounded-lg p-2 bg-white text-xs placeholder-charcoal-light/30 focus:border-gold/50"
                   />
                 </div>
@@ -349,7 +380,7 @@ export default function CategoriesPage() {
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-cream-dark/30">
+              <div className="flex justify-end gap-3 pt-4 border-t border-cream-dark/30 mt-2">
                 <button type="button" onClick={resetForm} className="px-4 py-2 border border-cream-dark rounded-lg text-charcoal-light/75 hover:bg-cream-dark/20 text-sm transition-colors cursor-pointer">Cancel</button>
                 <button type="submit" disabled={isUploading} className={`px-5 py-2 bg-gold hover:bg-gold-dark text-charcoal hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 shadow-md shadow-gold/10 cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   {editingId ? "Save Changes" : "Save Category"}
@@ -360,12 +391,13 @@ export default function CategoriesPage() {
         </div>
       )}
 
+      {/* ── BULK ADD MODAL ── */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-ivory border border-cream-dark rounded-2xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] flex flex-col">
-            <div className="flex justify-between items-center mb-6 border-b border-cream-dark/50 pb-4 flex-shrink-0">
+        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
+          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full sm:max-w-4xl max-h-[92vh] flex flex-col">
+            <div className="flex justify-between items-center mb-5 border-b border-cream-dark/50 pb-4 flex-shrink-0">
               <div>
-                <h2 className="font-serif text-2xl font-bold text-charcoal">Bulk Add Categories</h2>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-charcoal">Bulk Add Categories</h2>
                 <p className="text-xs text-charcoal-light/60 mt-1">Add multiple categories at once. Slugs are automatically generated.</p>
               </div>
               <button onClick={() => setIsBulkModalOpen(false)} className="text-charcoal-light/50 hover:text-charcoal transition-colors cursor-pointer">
@@ -373,7 +405,7 @@ export default function CategoriesPage() {
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-grow mb-6 pr-2">
+            <div className="overflow-auto flex-grow mb-6">
               <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                   <tr className="bg-cream-dark/30 border-b border-cream-dark text-xs text-charcoal-light uppercase tracking-wider font-semibold">
@@ -408,25 +440,25 @@ export default function CategoriesPage() {
                       <td className="p-3">
                         <div className="flex gap-2 items-center">
                           <input
-                            type="text"
-                            value={item.imageUrl}
-                            onChange={(e) => updateBulkRow(index, "imageUrl", e.target.value)}
-                            placeholder="URL or Upload"
-                            className="flex-1 border border-cream-dark rounded-lg p-2 bg-white text-xs focus:border-gold/50"
-                          />
-                          <label className="bg-cream border border-cream-dark hover:border-gold p-2 rounded-lg cursor-pointer transition-colors flex-shrink-0" title="Upload Image">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => handleBulkRowUpload(index, e.target.files)}
-                            />
-                            {item.isUploading ? (
-                              <Loader2 className="w-4 h-4 animate-spin text-gold" />
-                            ) : (
-                              <UploadCloud className="w-4 h-4 text-gold" />
-                            )}
-                          </label>
+                             type="text"
+                             value={item.imageUrl}
+                             onChange={(e) => updateBulkRow(index, "imageUrl", e.target.value)}
+                             placeholder="URL or Upload"
+                             className="flex-1 border border-cream-dark rounded-lg p-2 bg-white text-xs focus:border-gold/50"
+                           />
+                           <label className="bg-cream border border-cream-dark hover:border-gold p-2 rounded-lg cursor-pointer transition-colors flex-shrink-0" title="Upload Image">
+                             <input
+                               type="file"
+                               accept="image/*"
+                               className="hidden"
+                               onChange={(e) => handleBulkRowUpload(index, e.target.files)}
+                             />
+                             {item.isUploading ? (
+                               <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                             ) : (
+                               <UploadCloud className="w-4 h-4 text-gold" />
+                             )}
+                           </label>
                         </div>
                       </td>
                       <td className="p-3 text-center">
@@ -452,14 +484,14 @@ export default function CategoriesPage() {
               </button>
             </div>
 
-            <div className="flex justify-between items-center border-t border-cream-dark/50 pt-4 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-t border-cream-dark/50 pt-4 flex-shrink-0">
               <span className="text-xs text-charcoal-light/60">{bulkItems.length} category(ies) in list</span>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setIsBulkModalOpen(false)} className="px-4 py-2 border border-cream-dark rounded-lg text-charcoal-light/75 hover:bg-cream-dark/20 text-sm transition-colors cursor-pointer">Cancel</button>
+              <div className="flex gap-3 w-full sm:w-auto">
+                <button type="button" onClick={() => setIsBulkModalOpen(false)} className="flex-1 sm:flex-none px-4 py-2 border border-cream-dark rounded-lg text-charcoal-light/75 hover:bg-cream-dark/20 text-sm transition-colors cursor-pointer">Cancel</button>
                 <button
                   type="button"
                   onClick={handleBulkSubmit}
-                  className="px-5 py-2 bg-gold hover:bg-gold-dark text-charcoal hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 shadow-md shadow-gold/10 cursor-pointer"
+                  className="flex-1 sm:flex-none px-5 py-2 bg-gold hover:bg-gold-dark text-charcoal hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 shadow-md shadow-gold/10 cursor-pointer"
                 >
                   Save All Categories
                 </button>

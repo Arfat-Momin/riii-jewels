@@ -66,7 +66,7 @@ export default function AdminFeedbacksPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 bg-cream min-h-screen">
+    <div className="p-4 md:p-8 bg-cream min-h-screen">
       {/* Photo Lightbox */}
       {viewingPhoto && (
         <div
@@ -83,18 +83,18 @@ export default function AdminFeedbacksPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-charcoal tracking-wide">Customer Feedbacks</h1>
-          <p className="text-charcoal/40 text-sm mt-1">
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-charcoal tracking-wide">Customer Feedbacks</h1>
+          <p className="text-charcoal/40 text-xs md:text-sm mt-1">
             {pending.length} pending · {approved.length} approved (shown on website)
           </p>
         </div>
         <button
           onClick={fetchFeedbacks}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-4 py-2 rounded-sm hover:border-charcoal/30"
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm hover:border-charcoal/30 self-start sm:self-auto"
         >
-          <RefreshCw className="w-4 h-4" /> Refresh
+          <RefreshCw className="w-4 h-4" /> <span className="hidden xs:inline">Refresh</span>
         </button>
       </div>
 
@@ -109,7 +109,7 @@ export default function AdminFeedbacksPage() {
           {/* Pending Approvals */}
           {pending.length > 0 && (
             <div>
-              <h2 className="text-xs uppercase tracking-widest text-charcoal/50 font-semibold mb-4 flex items-center gap-2">
+              <h2 className="text-[10px] sm:text-xs uppercase tracking-widest text-charcoal/50 font-semibold mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-gold inline-block" /> Pending Approval ({pending.length})
               </h2>
               <div className="space-y-4">
@@ -130,7 +130,7 @@ export default function AdminFeedbacksPage() {
           {/* Approved */}
           {approved.length > 0 && (
             <div>
-              <h2 className="text-xs uppercase tracking-widest text-charcoal/50 font-semibold mb-4 flex items-center gap-2">
+              <h2 className="text-[10px] sm:text-xs uppercase tracking-widest text-charcoal/50 font-semibold mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-sage inline-block" /> Approved & Live ({approved.length})
               </h2>
               <div className="space-y-4">
@@ -171,13 +171,13 @@ function FeedbackCard({
 }) {
   return (
     <div className={`bg-ivory rounded-xl border shadow-sm overflow-hidden transition-shadow hover:shadow-md ${isApproved ? "border-sage/30" : "border-cream-dark"}`}>
-      <div className="px-6 py-5">
-        <div className="flex flex-wrap gap-4 items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
+      <div className="px-4 sm:px-6 py-5">
+        <div className="flex flex-col sm:flex-row gap-4 sm:items-start justify-between">
+          <div className="flex-1 order-2 sm:order-1">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
               <p className="font-medium text-charcoal">{feedback.customerName}</p>
               {isApproved && (
-                <span className="text-[10px] uppercase tracking-wider bg-sage/10 text-sage px-2 py-0.5 rounded-full font-semibold">
+                <span className="text-[10px] uppercase tracking-wider bg-sage/10 text-sage px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
                   ✓ Live on Website
                 </span>
               )}
@@ -186,15 +186,15 @@ function FeedbackCard({
               {[1, 2, 3, 4, 5].map(star => (
                 <Star
                   key={star}
-                  className={`w-4 h-4 ${star <= feedback.rating ? "fill-gold text-gold" : "text-charcoal/15"}`}
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${star <= feedback.rating ? "fill-gold text-gold" : "text-charcoal/15"}`}
                 />
               ))}
-              <span className="text-xs text-charcoal/40 ml-2 mt-0.5">{feedback.rating}/5</span>
+              <span className="text-[10px] sm:text-xs text-charcoal/40 ml-2 mt-0.5">{feedback.rating}/5</span>
             </div>
             {feedback.text && (
               <p className="text-sm text-charcoal/70 italic leading-relaxed">"{feedback.text}"</p>
             )}
-            <div className="flex gap-4 mt-3 text-xs text-charcoal/30">
+            <div className="flex flex-wrap gap-3 sm:gap-4 mt-3 text-[10px] sm:text-xs text-charcoal/30">
               <span>Order: <span className="font-mono">{feedback.orderId}</span></span>
               <span>{new Date(feedback.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
             </div>
@@ -202,11 +202,11 @@ function FeedbackCard({
 
           {/* Photo thumbnail */}
           {feedback.photoUrl && (
-            <button onClick={onViewPhoto} className="flex-shrink-0 group relative">
+            <button onClick={onViewPhoto} className="flex-shrink-0 group relative self-start order-1 sm:order-2 mb-2 sm:mb-0">
               <img
                 src={feedback.photoUrl}
                 alt="Customer photo"
-                className="w-20 h-20 object-cover rounded-sm border border-charcoal/10 group-hover:opacity-80 transition-opacity"
+                className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-sm border border-charcoal/10 group-hover:opacity-80 transition-opacity"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <ImageIcon className="w-5 h-5 text-white drop-shadow" />
@@ -217,12 +217,12 @@ function FeedbackCard({
       </div>
 
       {/* Actions */}
-      <div className="px-6 py-3 bg-cream border-t border-charcoal/5 flex items-center gap-3">
+      <div className="px-4 sm:px-6 py-3 bg-cream border-t border-charcoal/5 flex flex-wrap items-center gap-2 sm:gap-3">
         {!isApproved && (
           <button
             onClick={onApprove}
             disabled={isProcessing}
-            className="flex items-center gap-2 bg-gold text-white text-xs uppercase tracking-wider px-4 py-2 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-50"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gold text-white text-[10px] sm:text-xs uppercase tracking-wider px-3 sm:px-4 py-2 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-50"
           >
             <CheckCircle className="w-3.5 h-3.5" />
             {isProcessing ? "Processing..." : "Approve & Publish"}
@@ -231,7 +231,7 @@ function FeedbackCard({
         <button
           onClick={onDelete}
           disabled={isProcessing}
-          className="flex items-center gap-2 text-xs text-charcoal/40 hover:text-red-500 transition-colors border border-charcoal/10 hover:border-red-300 px-3 py-2 rounded-sm disabled:opacity-50"
+          className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-[10px] sm:text-xs text-charcoal/40 hover:text-red-500 transition-colors border border-charcoal/10 hover:border-red-300 px-3 py-2 rounded-sm disabled:opacity-50"
         >
           <Trash2 className="w-3.5 h-3.5" />
           Delete

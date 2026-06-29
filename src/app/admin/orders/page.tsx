@@ -92,11 +92,11 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 bg-cream min-h-screen">
+    <div className="p-4 md:p-8 bg-cream min-h-screen">
       {/* Confirm Modal */}
       {confirmModal && (
         <div className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm border border-charcoal/10">
+          <div className="bg-white rounded-xl shadow-2xl p-5 sm:p-6 w-full max-w-sm border border-charcoal/10">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-serif text-xl text-charcoal">Set Delivery Date</h2>
               <button onClick={() => setConfirmModal(null)} className="text-charcoal/40 hover:text-charcoal transition-colors">
@@ -121,16 +121,16 @@ export default function AdminOrdersPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmModal(null)}
-                className="flex-1 border border-charcoal/15 text-charcoal/60 text-xs uppercase tracking-wider px-4 py-2.5 rounded-sm hover:border-charcoal/30 transition-colors"
+                className="flex-1 border border-charcoal/15 text-charcoal/60 text-xs uppercase tracking-wider px-3 sm:px-4 py-2.5 rounded-sm hover:border-charcoal/30 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmOrder}
                 disabled={!confirmModal.deliveryDate}
-                className="flex-1 bg-gold text-white text-xs uppercase tracking-wider px-4 py-2.5 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 bg-gold text-white text-xs uppercase tracking-wider px-3 sm:px-4 py-2.5 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                <CheckCircle className="w-4 h-4" /> Confirm Order
+                <CheckCircle className="w-4 h-4" /> Confirm
               </button>
             </div>
           </div>
@@ -153,16 +153,16 @@ export default function AdminOrdersPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-charcoal tracking-wide">Orders</h1>
-          <p className="text-charcoal/40 text-sm mt-1">{orders.length} total orders</p>
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-charcoal tracking-wide">Orders</h1>
+          <p className="text-charcoal/40 text-xs md:text-sm mt-1">{orders.length} total orders</p>
         </div>
         <button
           onClick={fetchOrders}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-4 py-2 rounded-sm hover:border-charcoal/30"
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm hover:border-charcoal/30"
         >
-          <RefreshCw className="w-4 h-4" /> Refresh
+          <RefreshCw className="w-4 h-4" /> <span className="hidden xs:inline">Refresh</span>
         </button>
       </div>
 
@@ -176,37 +176,39 @@ export default function AdminOrdersPage() {
           {orders.map(order => (
             <div key={order.id} className="bg-ivory rounded-xl border border-cream-dark shadow-sm overflow-hidden hover:shadow-md transition-shadow">
               {/* Order Header */}
-              <div className="px-6 py-4 flex flex-wrap gap-4 items-center justify-between border-b border-charcoal/5">
-                <div className="flex items-center gap-6">
+              <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row gap-4 sm:items-center justify-between border-b border-charcoal/5">
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                   <div>
                     <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-0.5">Order ID</p>
-                    <p className="font-mono text-sm text-charcoal font-medium">{order.id}</p>
+                    <p className="font-mono text-xs sm:text-sm text-charcoal font-medium">{order.id}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-0.5">Date</p>
-                    <p className="text-sm text-charcoal">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                    <p className="text-xs sm:text-sm text-charcoal">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-0.5">Total</p>
-                    <p className="font-serif text-lg text-charcoal font-bold">₹{order.totalAmount}</p>
+                    <p className="font-serif text-base sm:text-lg text-charcoal font-bold">₹{order.totalAmount}</p>
                   </div>
                   {order.expectedDeliveryDate && (
                     <div>
                       <p className="text-[10px] text-charcoal/40 uppercase tracking-wider mb-0.5">Exp. Delivery</p>
-                      <p className="text-sm text-gold font-medium flex items-center gap-1">
+                      <p className="text-xs sm:text-sm text-gold font-medium flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" />
                         {new Date(order.expectedDeliveryDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
                   )}
                 </div>
-                <span className={`text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full ${statusColor(order.status)}`}>
-                  {order.status}
-                </span>
+                <div className="flex justify-start sm:justify-end mt-2 sm:mt-0">
+                  <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full ${statusColor(order.status)}`}>
+                    {order.status}
+                  </span>
+                </div>
               </div>
 
               {/* Order Details */}
-              <div className="px-6 py-5 grid md:grid-cols-2 gap-6">
+              <div className="px-4 sm:px-6 py-5 grid md:grid-cols-2 gap-6">
                 {/* Customer Info */}
                 <div className="space-y-3">
                   <p className="text-[10px] text-charcoal/40 uppercase tracking-wider font-semibold">Customer Details</p>
@@ -236,13 +238,13 @@ export default function AdminOrdersPage() {
               </div>
 
               {/* Actions Row */}
-              <div className="px-6 py-4 bg-cream border-t border-charcoal/5 flex flex-wrap gap-3 items-center justify-between">
+              <div className="px-4 sm:px-6 py-4 bg-cream border-t border-charcoal/5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 {/* Screenshot */}
-                <div>
+                <div className="flex justify-start">
                   {order.paymentScreenshotUrl ? (
                     <button
                       onClick={() => setViewingScreenshot(order.paymentScreenshotUrl!)}
-                      className="flex items-center gap-2 text-xs text-gold hover:text-gold-dark transition-colors border border-gold/30 hover:border-gold/60 px-3 py-1.5 rounded-sm"
+                      className="flex items-center gap-2 text-[11px] sm:text-xs text-gold hover:text-gold-dark transition-colors border border-gold/30 hover:border-gold/60 px-3 py-1.5 rounded-sm"
                     >
                       <Eye className="w-4 h-4" /> View Payment Screenshot
                     </button>
@@ -252,29 +254,29 @@ export default function AdminOrdersPage() {
                 </div>
 
                 {/* Status Buttons */}
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {order.status === "Placed" && (
                     <button
                       onClick={() => openConfirmModal(order.id!)}
                       disabled={updatingId === order.id}
-                      className="flex items-center gap-2 bg-gold text-white text-xs uppercase tracking-wider px-4 py-2 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-50"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gold text-white text-[10px] sm:text-xs uppercase tracking-wider px-3 sm:px-4 py-2 rounded-sm hover:bg-gold-dark transition-colors disabled:opacity-50"
                     >
                       <Calendar className="w-4 h-4" />
-                      {updatingId === order.id ? "Updating..." : "Confirm & Set Delivery Date"}
+                      {updatingId === order.id ? "Updating..." : "Confirm & Set Date"}
                     </button>
                   )}
                   {order.status === "Confirmed" && (
                     <button
                       onClick={() => handleStatusUpdate(order.id!, "Delivered")}
                       disabled={updatingId === order.id}
-                      className="flex items-center gap-2 bg-sage text-white text-xs uppercase tracking-wider px-4 py-2 rounded-sm hover:bg-sage/80 transition-colors disabled:opacity-50"
+                      className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-sage text-white text-[10px] sm:text-xs uppercase tracking-wider px-3 sm:px-4 py-2 rounded-sm hover:bg-sage/80 transition-colors disabled:opacity-50"
                     >
                       <Truck className="w-4 h-4" />
                       {updatingId === order.id ? "Updating..." : "Mark as Delivered"}
                     </button>
                   )}
                   {order.status === "Delivered" && (
-                    <span className="flex items-center gap-2 text-sage text-xs uppercase tracking-wider px-4 py-2">
+                    <span className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-sage text-[10px] sm:text-xs uppercase tracking-wider px-3 sm:px-4 py-2">
                       <CheckCircle className="w-4 h-4" /> Delivered ✓
                     </span>
                   )}

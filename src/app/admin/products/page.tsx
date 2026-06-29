@@ -239,27 +239,29 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="p-8 bg-cream min-h-screen font-sans">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="font-serif text-3xl font-bold text-charcoal tracking-wide">Products Manager</h1>
-        <div className="flex gap-3">
+    <div className="p-4 md:p-8 bg-cream min-h-screen font-sans">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="font-serif text-2xl md:text-3xl font-bold text-charcoal tracking-wide">Products Manager</h1>
+        <div className="flex gap-2 sm:gap-3">
           <button
             onClick={openBulkAdd}
-            className="border border-gold text-gold-dark hover:bg-gold hover:text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm transition-all duration-300 cursor-pointer text-sm bg-ivory"
+            className="border border-gold text-gold-dark hover:bg-gold hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm transition-all duration-300 cursor-pointer text-xs sm:text-sm bg-ivory"
           >
             <Layers className="w-4 h-4" /> Bulk Add
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-gold hover:bg-gold-dark text-charcoal hover:text-white px-5 py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-md shadow-gold/15 transition-all duration-300 cursor-pointer text-sm"
+            className="bg-gold hover:bg-gold-dark text-charcoal hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-md shadow-gold/15 transition-all duration-300 cursor-pointer text-xs sm:text-sm"
           >
             <Plus className="w-4 h-4 stroke-[3]" /> Add Product
           </button>
         </div>
       </div>
 
-      <div className="bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[900px]">
+      {/* ── DESKTOP TABLE ── */}
+      <div className="hidden md:block bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[750px]">
           <thead>
             <tr className="bg-cream-dark/30 border-b border-cream-dark text-xs text-charcoal-light uppercase tracking-wider font-semibold">
               <th className="p-4">Image</th>
@@ -288,7 +290,7 @@ export default function ProductsPage() {
                     <span className="text-charcoal-light/40 line-through text-xs ml-2 font-normal">₹{p.originalPrice.toLocaleString("en-IN")}</span>
                   )}
                 </td>
-                <td className="p-4 text-charcoal-light/80">{categories.find(c => c.id == p.categoryId)?.name || "-"}</td>
+                <td className="p-4 text-charcoal-light/80">{categories.find(c => c.id == p.categoryId)?.name || "–"}</td>
                 <td className="p-4">
                   <div className="flex gap-1.5 flex-wrap">
                     {p.featured && <span className="bg-gold/10 text-gold-dark border border-gold/20 text-[10px] px-2.5 py-0.5 rounded-full font-medium">Featured</span>}
@@ -301,10 +303,9 @@ export default function ProductsPage() {
                   <button
                     onClick={() => toggleOutOfStock(p)}
                     title={p.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
-                    className={`flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${
-                      p.outOfStock
-                        ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-                        : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                    className={`flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer ${p.outOfStock
+                      ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                      : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
                     }`}
                   >
                     {p.outOfStock ? <PackageCheck className="w-3.5 h-3.5" /> : <PackageX className="w-3.5 h-3.5" />}
@@ -327,18 +328,72 @@ export default function ProductsPage() {
         </table>
       </div>
 
-      {/* Add / Edit Modal */}
+      {/* ── MOBILE CARDS ── */}
+      <div className="md:hidden space-y-3">
+        {products.length === 0 && (
+          <div className="text-center py-16 text-charcoal/40 text-sm">No products yet.</div>
+        )}
+        {products.map((p) => (
+          <div key={p.id} className="bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-hidden">
+            <div className="flex items-start gap-3 p-4">
+              {p.imageUrl ? (
+                <img src={p.imageUrl} alt={p.name} className="w-16 h-16 object-cover rounded-lg border border-cream-dark flex-shrink-0" />
+              ) : (
+                <div className="w-16 h-16 bg-cream-dark/50 rounded-lg flex items-center justify-center text-[10px] text-charcoal-light/40 font-medium flex-shrink-0">No Image</div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-charcoal text-sm leading-snug truncate">{p.name}</p>
+                <p className="text-sm text-charcoal font-medium mt-0.5">
+                  ₹{p.price.toLocaleString("en-IN")}
+                  {p.originalPrice && (
+                    <span className="text-charcoal-light/40 line-through text-xs ml-2 font-normal">₹{p.originalPrice.toLocaleString("en-IN")}</span>
+                  )}
+                </p>
+                <p className="text-xs text-charcoal-light/60 mt-0.5">{categories.find(c => c.id == p.categoryId)?.name || "Uncategorised"}</p>
+                <div className="flex gap-1 flex-wrap mt-1.5">
+                  {p.featured && <span className="bg-gold/10 text-gold-dark border border-gold/20 text-[10px] px-2 py-0.5 rounded-full font-medium">Featured</span>}
+                  {p.bestSeller && <span className="bg-sage/15 text-sage border border-sage/15 text-[10px] px-2 py-0.5 rounded-full font-medium">Best Seller</span>}
+                  {p.newArrival && <span className="bg-rose/10 text-rose border border-rose/20 text-[10px] px-2 py-0.5 rounded-full font-medium">New</span>}
+                  {p.onSale && <span className="bg-red-50 text-red-700 border border-red-100 text-[10px] px-2 py-0.5 rounded-full font-medium">Sale</span>}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2.5 flex-shrink-0">
+                <button onClick={() => openEdit(p)} className="text-gold-dark hover:text-charcoal transition-colors" title="Edit">
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-600 transition-colors" title="Delete">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="px-4 pb-3">
+              <button
+                onClick={() => toggleOutOfStock(p)}
+                className={`flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer w-full justify-center ${p.outOfStock
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-red-50 text-red-700 border-red-200"
+                }`}
+              >
+                {p.outOfStock ? <PackageCheck className="w-3.5 h-3.5" /> : <PackageX className="w-3.5 h-3.5" />}
+                {p.outOfStock ? "Mark as In Stock" : "Mark as Out of Stock"}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── ADD / EDIT MODAL ── */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-ivory border border-cream-dark rounded-2xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 border-b border-cream-dark/50 pb-4">
-              <h2 className="font-serif text-2xl font-bold text-charcoal">{editingId ? "Edit Product" : "Add New Product"}</h2>
+        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
+          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-5 border-b border-cream-dark/50 pb-4">
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-charcoal">{editingId ? "Edit Product" : "Add New Product"}</h2>
               <button onClick={resetForm} className="text-charcoal-light/50 hover:text-charcoal transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Name</label>
                 <input
@@ -347,26 +402,22 @@ export default function ProductsPage() {
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm focus:border-gold/50"
                 />
               </div>
-
               <div>
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Slug</label>
                 <input required type="text" value={slug} onChange={(e) => setSlug(e.target.value)}
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm focus:border-gold/50" />
               </div>
-
               <div>
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Price (₹)</label>
                 <input required type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)}
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm focus:border-gold/50" />
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Original Price (₹) – For Sale Items</label>
+                <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Original Price (₹) – For Sale</label>
                 <input type="number" min="0" value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)}
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm placeholder-charcoal-light/30 focus:border-gold/50" placeholder="Optional" />
               </div>
-
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Category</label>
                 <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm focus:border-gold/50">
@@ -376,19 +427,17 @@ export default function ProductsPage() {
               </div>
 
               {/* Images */}
-              <div className="md:col-span-2 space-y-3">
+              <div className="sm:col-span-2 space-y-3">
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Product Images</label>
-                <div className="w-full border-2 border-dashed border-cream-dark hover:border-gold rounded-lg p-6 flex flex-col items-center justify-center text-charcoal-light/65 hover:bg-cream-dark/10 transition-colors cursor-pointer relative"
+                <div className="w-full border-2 border-dashed border-cream-dark hover:border-gold rounded-lg p-5 flex flex-col items-center justify-center text-charcoal-light/65 hover:bg-cream-dark/10 transition-colors cursor-pointer"
                   onDragOver={handleDragOver} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()}>
                   <input type="file" multiple accept="image/*" className="hidden" ref={fileInputRef} onChange={(e) => handleFileUpload(e.target.files)} />
                   {isUploading ? <Loader2 className="w-8 h-8 animate-spin text-gold mb-2" /> : <UploadCloud className="w-8 h-8 text-gold mb-2" />}
-                  <p className="text-sm font-medium">{isUploading ? "Uploading to Imgbb..." : "Click or drag images here to upload"}</p>
+                  <p className="text-sm font-medium text-center">{isUploading ? "Uploading..." : "Tap or drag images here to upload"}</p>
                 </div>
-
                 <div className="flex items-center gap-4 text-xs text-charcoal-light/40 uppercase tracking-widest font-semibold my-2">
                   <div className="h-px bg-cream-dark/70 flex-1" /><span>OR</span><div className="h-px bg-cream-dark/70 flex-1" />
                 </div>
-
                 <div className="space-y-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-charcoal-light/60 uppercase tracking-wider mb-1">Main Image URL</label>
@@ -400,11 +449,10 @@ export default function ProductsPage() {
                     <label className="block text-[11px] font-semibold text-charcoal-light/60 uppercase tracking-wider mb-1">Additional Image URLs (comma-separated)</label>
                     <input type="text" value={imageUrls.join(", ")}
                       onChange={(e) => setImageUrls(e.target.value.split(",").map(url => url.trim()).filter(Boolean))}
-                      placeholder="Paste other image URLs (e.g. https://url1.com, https://url2.com)"
+                      placeholder="https://url1.com, https://url2.com"
                       className="w-full border border-cream-dark rounded-lg p-2 bg-white text-xs placeholder-charcoal-light/30 focus:border-gold/50" />
                   </div>
                 </div>
-
                 {(imageUrl || imageUrls.length > 0) && (
                   <div className="flex gap-3 mt-4 overflow-x-auto pb-2 border-t border-cream-dark/30 pt-4">
                     {imageUrl && (
@@ -428,19 +476,17 @@ export default function ProductsPage() {
                 )}
               </div>
 
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Sizes (comma separated)</label>
                 <input type="text" value={sizes} onChange={(e) => setSizes(e.target.value)}
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm focus:border-gold/50" placeholder="e.g. 6, 7, 8, S, M, L" />
               </div>
-
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-charcoal-light/75 uppercase tracking-wider mb-1">Description</label>
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)}
                   className="w-full border border-cream-dark rounded-lg p-2.5 bg-white text-sm focus:border-gold/50 h-24" />
               </div>
-
-              <div className="md:col-span-2 flex flex-wrap gap-5 py-2 border-t border-b border-cream-dark/30 my-2">
+              <div className="sm:col-span-2 flex flex-wrap gap-4 sm:gap-5 py-2 border-t border-b border-cream-dark/30 my-2">
                 {[
                   { label: "Featured", checked: featured, set: setFeatured },
                   { label: "Best Seller", checked: bestSeller, set: setBestSeller },
@@ -454,8 +500,7 @@ export default function ProductsPage() {
                   </label>
                 ))}
               </div>
-
-              <div className="md:col-span-2 flex justify-end gap-3 mt-4">
+              <div className="sm:col-span-2 flex justify-end gap-3 mt-2">
                 <button type="button" onClick={resetForm} className="px-4 py-2 border border-cream-dark rounded-lg text-charcoal-light/75 hover:bg-cream-dark/20 text-sm transition-colors cursor-pointer">Cancel</button>
                 <button type="submit" disabled={isUploading} className={`px-5 py-2 bg-gold hover:bg-gold-dark text-charcoal hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 shadow-md shadow-gold/10 cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   {editingId ? "Save Changes" : "Add Product"}
@@ -466,13 +511,13 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Bulk Add Modal */}
+      {/* ── BULK ADD MODAL ── */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-ivory border border-cream-dark rounded-2xl shadow-2xl p-6 w-full max-w-6xl max-h-[90vh] flex flex-col">
-            <div className="flex justify-between items-center mb-6 border-b border-cream-dark/50 pb-4 flex-shrink-0">
+        <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
+          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full sm:max-w-6xl max-h-[92vh] flex flex-col">
+            <div className="flex justify-between items-center mb-5 border-b border-cream-dark/50 pb-4 flex-shrink-0">
               <div>
-                <h2 className="font-serif text-2xl font-bold text-charcoal">Bulk Add Products</h2>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-charcoal">Bulk Add Products</h2>
                 <p className="text-xs text-charcoal-light/60 mt-1">Add multiple products at once. Slugs are automatically generated.</p>
               </div>
               <button onClick={() => setIsBulkModalOpen(false)} className="text-charcoal-light/50 hover:text-charcoal transition-colors cursor-pointer">
@@ -480,16 +525,16 @@ export default function ProductsPage() {
               </button>
             </div>
 
-            <div className="overflow-y-auto flex-grow mb-6 pr-2">
-              <table className="w-full text-left border-collapse min-w-[900px]">
+            <div className="overflow-auto flex-grow mb-6">
+              <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
                   <tr className="bg-cream-dark/30 border-b border-cream-dark text-xs text-charcoal-light uppercase tracking-wider font-semibold">
-                    <th className="p-3 w-[20%]">Name *</th>
-                    <th className="p-3 w-[10%]">Price (₹) *</th>
+                    <th className="p-3 w-[22%]">Name *</th>
+                    <th className="p-3 w-[10%]">Price *</th>
                     <th className="p-3 w-[10%]">Orig. Price</th>
                     <th className="p-3 w-[13%]">Category</th>
                     <th className="p-3 w-[13%]">Sizes</th>
-                    <th className="p-3 w-[29%]">Image URL / Upload</th>
+                    <th className="p-3 w-[27%]">Image URL / Upload</th>
                     <th className="p-3 w-[5%] text-center">Del</th>
                   </tr>
                 </thead>
@@ -555,12 +600,12 @@ export default function ProductsPage() {
               </button>
             </div>
 
-            <div className="flex justify-between items-center border-t border-cream-dark/50 pt-4 flex-shrink-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-t border-cream-dark/50 pt-4 flex-shrink-0">
               <span className="text-xs text-charcoal-light/60">{bulkItems.length} product(s) in list</span>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setIsBulkModalOpen(false)} className="px-4 py-2 border border-cream-dark rounded-lg text-charcoal-light/75 hover:bg-cream-dark/20 text-sm transition-colors cursor-pointer">Cancel</button>
+              <div className="flex gap-3 w-full sm:w-auto">
+                <button type="button" onClick={() => setIsBulkModalOpen(false)} className="flex-1 sm:flex-none px-4 py-2 border border-cream-dark rounded-lg text-charcoal-light/75 hover:bg-cream-dark/20 text-sm transition-colors cursor-pointer">Cancel</button>
                 <button type="button" onClick={handleBulkSubmit}
-                  className="px-5 py-2 bg-gold hover:bg-gold-dark text-charcoal hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 shadow-md shadow-gold/10 cursor-pointer">
+                  className="flex-1 sm:flex-none px-5 py-2 bg-gold hover:bg-gold-dark text-charcoal hover:text-white font-semibold rounded-lg text-sm transition-all duration-300 shadow-md shadow-gold/10 cursor-pointer">
                   Save All Products
                 </button>
               </div>
