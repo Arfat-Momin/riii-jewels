@@ -513,7 +513,10 @@ export default function CartPage() {
                               <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-charcoal/30 mx-auto" />
                               <p className="text-sm text-charcoal/60">
                                 <span className="hidden sm:inline">Drag & drop or </span>
-                                <span className="text-gold font-medium">Tap to upload</span>
+                                <span className="text-gold font-medium">
+                                  <span className="sm:hidden">Choose from gallery or </span>
+                                  Tap to upload
+                                </span>
                               </p>
                               <p className="text-xs text-charcoal/40">PNG, JPG supported</p>
                             </div>
@@ -523,7 +526,6 @@ export default function CartPage() {
                           ref={fileInputRef}
                           type="file"
                           accept="image/*"
-                          capture="environment"
                           className="hidden"
                           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleScreenshotChange(f); }}
                         />
