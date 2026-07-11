@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllFeedbacks, approveFeedback, deleteFeedback, Feedback } from "@/lib/firebase/services";
+import { subscribeToAllFeedbacks, approveFeedback, deleteFeedback, Feedback } from "@/lib/firebase/services";
 import { Star, CheckCircle, Trash2, RefreshCw, MessageSquare, Image as ImageIcon } from "lucide-react";
 
 export default function AdminFeedbacksPage() {
@@ -10,28 +10,20 @@ export default function AdminFeedbacksPage() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
 
-  const fetchFeedbacks = async () => {
+  useEffect(() => {
     setLoading(true);
-    try {
-      const data = await getAllFeedbacks();
+    const unsubscribe = subscribeToAllFeedbacks((data) => {
       const sorted = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setFeedbacks(sorted);
-    } catch (e) {
-      console.error(e);
-    } finally {
       setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchFeedbacks();
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleApprove = async (id: string) => {
     setProcessingId(id);
     try {
       await approveFeedback(id);
-      setFeedbacks(prev => prev.map(f => f.id === id ? { ...f, approved: true } : f));
     } catch (e) {
       console.error(e);
       alert("Failed to approve feedback.");
@@ -45,7 +37,6 @@ export default function AdminFeedbacksPage() {
     setProcessingId(id);
     try {
       await deleteFeedback(id);
-      setFeedbacks(prev => prev.filter(f => f.id !== id));
     } catch (e) {
       console.error(e);
       alert("Failed to delete feedback.");
@@ -91,10 +82,11 @@ export default function AdminFeedbacksPage() {
           </p>
         </div>
         <button
-          onClick={fetchFeedbacks}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm hover:border-charcoal/30 self-start sm:self-auto"
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm self-start sm:self-auto"
+          disabled
         >
-          <RefreshCw className="w-4 h-4" /> <span className="hidden xs:inline">Refresh</span>
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="hidden xs:inline text-green-600">Live</span>
         </button>
       </div>
 

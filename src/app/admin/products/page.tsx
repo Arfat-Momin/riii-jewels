@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getProducts, addProduct, updateProduct, deleteProduct, getCategories, uploadImage, Product, Category } from "@/lib/firebase/services";
+import { subscribeToProducts, subscribeToCategories, addProduct, updateProduct, deleteProduct, uploadImage, Product, Category } from "@/lib/firebase/services";
 import { Plus, Edit2, Trash2, X, UploadCloud, Loader2, Layers, PackageX, PackageCheck } from "lucide-react";
 
 export default function ProductsPage() {
@@ -100,7 +100,6 @@ export default function ProductsPage() {
         return addProduct(data);
       });
       await Promise.all(promises);
-      await loadData();
       setIsBulkModalOpen(false);
       setBulkItems([]);
     } catch (error) {
@@ -130,16 +129,31 @@ export default function ProductsPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadData = async () => {
-    setLoading(true);
-    const [p, c] = await Promise.all([getProducts(), getCategories()]);
-    setProducts(p);
-    setCategories(c);
-    setLoading(false);
-  };
-
   useEffect(() => {
-    loadData();
+    setLoading(true);
+    let productsLoaded = false;
+    let categoriesLoaded = false;
+
+    const checkLoading = () => {
+      if (productsLoaded && categoriesLoaded) setLoading(false);
+    };
+
+    const unsubProducts = subscribeToProducts((p) => {
+      setProducts(p);
+      productsLoaded = true;
+      checkLoading();
+    });
+
+    const unsubCategories = subscribeToCategories((c) => {
+      setCategories(c);
+      categoriesLoaded = true;
+      checkLoading();
+    });
+
+    return () => {
+      unsubProducts();
+      unsubCategories();
+    };
   }, []);
 
   const resetForm = () => {
@@ -176,7 +190,6 @@ export default function ProductsPage() {
     } else {
       await addProduct(data);
     }
-    await loadData();
     resetForm();
   };
 
@@ -215,7 +228,6 @@ export default function ProductsPage() {
   const handleDelete = async (id: string | number) => {
     if (confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(id);
-      await loadData();
     }
   };
 
@@ -223,7 +235,6 @@ export default function ProductsPage() {
     const newStatus = !p.outOfStock;
     if (confirm(`Mark "${p.name}" as ${newStatus ? "Out of Stock" : "In Stock"}?`)) {
       await updateProduct(p.id, { outOfStock: newStatus });
-      await loadData();
     }
   };
 

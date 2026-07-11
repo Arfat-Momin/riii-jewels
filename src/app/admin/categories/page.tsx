@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getCategories, addCategory, updateCategory, deleteCategory, uploadImage, Category } from "@/lib/firebase/services";
+import { subscribeToCategories, addCategory, updateCategory, deleteCategory, uploadImage, Category } from "@/lib/firebase/services";
 import { Plus, Edit2, Trash2, X, UploadCloud, Loader2, Layers } from "lucide-react";
 
 export default function CategoriesPage() {
@@ -81,7 +81,6 @@ export default function CategoriesPage() {
         return addCategory(data);
       });
       await Promise.all(promises);
-      await loadCategories();
       setIsBulkModalOpen(false);
       setBulkItems([]);
     } catch (error) {
@@ -101,15 +100,13 @@ export default function CategoriesPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadCategories = async () => {
-    setLoading(true);
-    const data = await getCategories();
-    setCategories(data);
-    setLoading(false);
-  };
-
   useEffect(() => {
-    loadCategories();
+    setLoading(true);
+    const unsubscribe = subscribeToCategories((data) => {
+      setCategories(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const resetForm = () => {
@@ -140,7 +137,6 @@ export default function CategoriesPage() {
     } else {
       await addCategory(data);
     }
-    await loadCategories();
     resetForm();
   };
 
@@ -170,7 +166,6 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string | number) => {
     if (confirm("Are you sure you want to delete this category?")) {
       await deleteCategory(id);
-      await loadCategories();
     }
   };
 

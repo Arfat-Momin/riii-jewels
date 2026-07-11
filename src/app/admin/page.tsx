@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProducts, getCategories, getAllOrders, getAllUsers, Product, Category, Order, UserProfile } from "@/lib/firebase/services";
+import { subscribeToProducts, subscribeToCategories, subscribeToAllOrders, subscribeToAllUsers, Product, Category, Order, UserProfile } from "@/lib/firebase/services";
 import { Package, Tags, ShoppingCart, Users } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -12,15 +12,28 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadStats() {
-      const [p, c, o, u] = await Promise.all([getProducts(), getCategories(), getAllOrders(), getAllUsers()]);
-      setProducts(p);
-      setCategories(c);
-      setOrders(o);
-      setUsers(u);
-      setLoading(false);
-    }
-    loadStats();
+    let productsLoaded = false;
+    let categoriesLoaded = false;
+    let ordersLoaded = false;
+    let usersLoaded = false;
+
+    const checkLoading = () => {
+      if (productsLoaded && categoriesLoaded && ordersLoaded && usersLoaded) {
+        setLoading(false);
+      }
+    };
+
+    const unsubProducts = subscribeToProducts((p) => { setProducts(p); productsLoaded = true; checkLoading(); });
+    const unsubCategories = subscribeToCategories((c) => { setCategories(c); categoriesLoaded = true; checkLoading(); });
+    const unsubOrders = subscribeToAllOrders((o) => { setOrders(o); ordersLoaded = true; checkLoading(); });
+    const unsubUsers = subscribeToAllUsers((u) => { setUsers(u); usersLoaded = true; checkLoading(); });
+
+    return () => {
+      unsubProducts();
+      unsubCategories();
+      unsubOrders();
+      unsubUsers();
+    };
   }, []);
 
   if (loading) {

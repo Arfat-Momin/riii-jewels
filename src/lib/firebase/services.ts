@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, addDoc, getDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, addDoc, getDoc, query, where, onSnapshot } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { db, auth } from "./config";
 
@@ -79,6 +79,12 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
+export function subscribeToCategories(callback: (categories: Category[]) => void) {
+  return onSnapshot(collection(db, "categories"), (snapshot) => {
+    callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category)));
+  });
+}
+
 export async function addCategory(category: Omit<Category, "id">): Promise<string | number> {
   const docRef = await addDoc(collection(db, "categories"), category);
   return docRef.id;
@@ -104,6 +110,12 @@ export async function getProducts(): Promise<Product[]> {
     console.error("Error fetching products:", error);
     return [];
   }
+}
+
+export function subscribeToProducts(callback: (products: Product[]) => void) {
+  return onSnapshot(collection(db, "products"), (snapshot) => {
+    callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product)));
+  });
 }
 
 export async function addProduct(product: Omit<Product, "id">): Promise<string | number> {
@@ -194,6 +206,12 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   }
 }
 
+export function subscribeToAllUsers(callback: (users: UserProfile[]) => void) {
+  return onSnapshot(collection(db, "users"), (snapshot) => {
+    callback(snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as UserProfile)));
+  });
+}
+
 export async function deleteUserByUid(uid: string): Promise<void> {
   await deleteDoc(doc(db, "users", uid));
   try {
@@ -214,6 +232,12 @@ export async function getAllOrders(): Promise<Order[]> {
     console.error("Error fetching all orders:", error);
     return [];
   }
+}
+
+export function subscribeToAllOrders(callback: (orders: Order[]) => void) {
+  return onSnapshot(collection(db, "orders"), (snapshot) => {
+    callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order)));
+  });
 }
 
 export async function updateOrderStatus(
@@ -311,6 +335,15 @@ export async function getAllFeedbacks(): Promise<Feedback[]> {
     }
     return [];
   }
+}
+
+export function subscribeToAllFeedbacks(callback: (feedbacks: Feedback[]) => void) {
+  return onSnapshot(collection(db, "feedbacks"), (snapshot) => {
+    const fbList = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Feedback));
+    // We don't subscribe to local feedbacks, but we can merge them in if needed. 
+    // In admin panel, local feedbacks shouldn't exist since it's server-based.
+    callback(fbList);
+  });
 }
 
 export async function approveFeedback(id: string): Promise<void> {

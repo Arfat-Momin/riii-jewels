@@ -3,32 +3,22 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { adminAuth, isMock } from "@/lib/firebase/config";
-import { Shield, Lock, User, Eye, EyeOff, Loader2 } from "lucide-react";
+import { adminAuth } from "@/lib/firebase/config";
+import { Shield, Lock, Mail, Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function AdminLogin() {
-  const [userId, setUserId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // If already logged in, redirect to admin dashboard
+  // If already logged in (valid session cookie), redirect to dashboard
   useEffect(() => {
-    if (isMock) {
-      const mockLoggedIn = localStorage.getItem("mock_admin_logged_in");
-      if (mockLoggedIn === "true") {
-        router.push("/admin");
-      }
-    } else {
-      const unsubscribe = adminAuth.onAuthStateChanged((user) => {
-        if (user) {
-          router.push("/admin");
-        }
-      });
-      return () => unsubscribe();
-    }
+    fetch("/api/admin/session")
+      .then((r) => { if (r.ok) router.push("/admin"); })
+      .catch(() => { /* not logged in */ });
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -37,25 +27,47 @@ export default function AdminLogin() {
     setError("");
 
     try {
-      if (isMock) {
-        // In mock mode, any non-empty credentials work
-        if (!userId || !password) {
-          throw new Error("Please enter both user ID and password.");
-        }
-        await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate api delay
-        localStorage.setItem("mock_admin_logged_in", "true");
-        router.push("/admin");
-      } else {
-        const formattedEmail = userId.includes("@") ? userId : `${userId}@admin.riii.com`;
-        await signInWithEmailAndPassword(adminAuth, formattedEmail, password);
-        router.push("/admin");
+      // ── Step 1: Authenticate with Firebase (client SDK handles email + password)
+      const credential = await signInWithEmailAndPassword(adminAuth, email.trim(), password);
+
+      // ── Step 2: Get a short-lived ID token (contains the user's UID as a claim)
+      const idToken = await credential.user.getIdToken();
+
+      // ── Step 3: Send ONLY the ID token to the server.
+      // The server will extract the UID from the token and check it against
+      // ADMIN_UID (a server-only env var that never reaches the browser).
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Sign out of Firebase client-side since server rejected the session
+        await adminAuth.signOut().catch(() => { });
+        setError(data.error ?? "Access denied. You are not authorized as admin.");
+        return;
       }
+
+      // ── Step 4: Server set an HttpOnly cookie — just redirect
+      router.push("/admin");
+
     } catch (err: any) {
-      console.error("Login error:", err);
-      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+      // Firebase client-side auth errors (wrong email/password)
+      const code = err?.code ?? "";
+      if (
+        code === "auth/user-not-found" ||
+        code === "auth/wrong-password" ||
+        code === "auth/invalid-credential" ||
+        code === "auth/invalid-email"
+      ) {
         setError("Invalid email or password. Please try again.");
+      } else if (code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please try again later.");
       } else {
-        setError(err.message || "An error occurred during sign-in.");
+        setError("Sign-in failed. Please check your credentials and try again.");
       }
     } finally {
       setLoading(false);
@@ -78,18 +90,6 @@ export default function AdminLogin() {
           <p className="text-sm text-cream/70 mt-2 font-serif italic">Admin Portal</p>
         </div>
 
-        {/* Mock Mode Notice */}
-        {isMock && (
-          <div className="mb-6 p-4 bg-gold/10 border border-gold/20 rounded-lg text-gold text-xs">
-            <p className="font-semibold flex items-center gap-1.5 mb-1">
-              <span>⚠️</span> Mock Mode Active
-            </p>
-            <p className="text-cream/90">
-              Firebase keys are not configured. Enter any email and password to log in locally.
-            </p>
-          </div>
-        )}
-
         {/* Error Message */}
         {error && (
           <div className="mb-6 p-3 bg-rose/10 border border-rose/20 rounded-lg text-rose-light text-sm text-center">
@@ -98,21 +98,22 @@ export default function AdminLogin() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
           <div>
             <label className="block text-xs font-semibold text-cream/60 uppercase tracking-wider mb-2">
-              User ID
+              Email
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-cream/40">
-                <User className="w-5 h-5" />
+                <Mail className="w-5 h-5" />
               </span>
               <input
-                type="text"
+                type="email"
                 required
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="admin"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+                autoComplete="username"
                 className="w-full pl-10 pr-4 py-3 bg-charcoal border border-charcoal-light/40 rounded-lg text-white placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors text-sm"
               />
             </div>
@@ -132,6 +133,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 className="w-full pl-10 pr-12 py-3 bg-charcoal border border-charcoal-light/40 rounded-lg text-white placeholder-cream/30 focus:outline-none focus:border-gold/50 transition-colors text-sm"
               />
               <button
@@ -152,7 +154,7 @@ export default function AdminLogin() {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Signing in...
+                Verifying...
               </>
             ) : (
               "Sign In"

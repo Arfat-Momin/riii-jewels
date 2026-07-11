@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllOrders, updateOrderStatus, Order } from "@/lib/firebase/services";
+import { subscribeToAllOrders, updateOrderStatus, Order } from "@/lib/firebase/services";
 import { CheckCircle, Truck, Package, Eye, RefreshCw, Calendar, X, MessageSquare } from "lucide-react";
 
 export default function AdminOrdersPage() {
@@ -16,21 +16,15 @@ export default function AdminOrdersPage() {
     deliveryDate: string;
   } | null>(null);
 
-  const fetchOrders = async () => {
+  useEffect(() => {
     setLoading(true);
-    try {
-      const data = await getAllOrders();
+    const unsubscribe = subscribeToAllOrders((data) => {
       const sorted = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setOrders(sorted);
-    } catch (e) {
-      console.error(e);
-    } finally {
       setLoading(false);
-    }
-  };
+    });
 
-  useEffect(() => {
-    fetchOrders();
+    return () => unsubscribe();
   }, []);
 
   // Get a default date 5 days from today
@@ -159,10 +153,11 @@ export default function AdminOrdersPage() {
           <p className="text-charcoal/40 text-xs md:text-sm mt-1">{orders.length} total orders</p>
         </div>
         <button
-          onClick={fetchOrders}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm hover:border-charcoal/30"
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm"
+          disabled
         >
-          <RefreshCw className="w-4 h-4" /> <span className="hidden xs:inline">Refresh</span>
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="hidden xs:inline text-green-600">Live</span>
         </button>
       </div>
 

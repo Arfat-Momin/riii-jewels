@@ -7,8 +7,6 @@ import {
   LayoutDashboard, Package, Tags, LogOut, Loader2,
   ShoppingCart, Users, MessageSquare, Settings, Menu, X
 } from "lucide-react";
-import { adminAuth, isMock } from "@/lib/firebase/config";
-import { onAuthStateChanged, signOut } from "firebase/auth";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,33 +24,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    if (isMock) {
-      const mockLoggedIn = localStorage.getItem("mock_admin_logged_in");
-      if (mockLoggedIn === "true") {
-        setIsAuthenticated(true);
-        setLoading(false);
-      } else {
-        setIsAuthenticated(false);
-        setLoading(false);
-        router.push("/admin/login");
-      }
-    } else {
-      const unsubscribe = onAuthStateChanged(adminAuth, (user) => {
-        // Only allow users with admin emails to access the admin panel
-        if (user && user.email && user.email.endsWith("@admin.riii.com")) {
+    // Verify session via server API — the server checks the HttpOnly cookie.
+    // The client receives only a boolean; the UID never reaches the browser.
+    fetch("/api/admin/session")
+      .then((res) => {
+        if (res.ok) {
           setIsAuthenticated(true);
-          setLoading(false);
         } else {
-          if (user) {
-            signOut(adminAuth).catch(console.error);
-          }
           setIsAuthenticated(false);
-          setLoading(false);
           router.push("/admin/login");
         }
-      });
-      return () => unsubscribe();
-    }
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+        router.push("/admin/login");
+      })
+      .finally(() => setLoading(false));
   }, [isLoginPage, router]);
 
   // Close sidebar on route change (mobile)
@@ -62,17 +49,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const handleSignOut = async () => {
     try {
-      if (isMock) {
-        localStorage.removeItem("mock_admin_logged_in");
-      } else {
-        await signOut(adminAuth);
-      }
-      setIsAuthenticated(false);
-      setShowSignOutConfirm(false);
-      router.push("/admin/login");
-    } catch (error) {
-      console.error("Sign out error:", error);
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch {
+      // Ignore — redirect regardless
     }
+    setIsAuthenticated(false);
+    setShowSignOutConfirm(false);
+    router.push("/admin/login");
   };
 
   if (isLoginPage) {

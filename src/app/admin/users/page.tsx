@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllUsers, deleteUserByUid, UserProfile } from "@/lib/firebase/services";
+import { subscribeToAllUsers, deleteUserByUid, UserProfile } from "@/lib/firebase/services";
 import { Users, Mail, Phone, MapPin, RefreshCw, Eye, EyeOff, Lock, Trash2, AlertTriangle } from "lucide-react";
 
 export default function AdminUsersPage() {
@@ -11,20 +11,13 @@ export default function AdminUsersPage() {
   const [deletingUid, setDeletingUid] = useState<string | null>(null);
   const [confirmDeleteUid, setConfirmDeleteUid] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const data = await getAllUsers();
-      setUsers(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchUsers();
+    setLoading(true);
+    const unsubscribe = subscribeToAllUsers((data) => {
+      setUsers(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const toggleReveal = (uid: string) => {
@@ -96,10 +89,11 @@ export default function AdminUsersPage() {
           <p className="text-charcoal/40 text-xs md:text-sm mt-1">{users.length} total users</p>
         </div>
         <button
-          onClick={fetchUsers}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm hover:border-charcoal/30"
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-charcoal/60 hover:text-charcoal transition-colors border border-charcoal/15 px-3 md:px-4 py-2 rounded-sm"
+          disabled
         >
-          <RefreshCw className="w-4 h-4" /> <span className="hidden xs:inline">Refresh</span>
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="hidden xs:inline text-green-600">Live</span>
         </button>
       </div>
 

@@ -289,8 +289,8 @@ export default function CartPage() {
                       <div key={`${item.id}-${index}`} className="flex gap-3 sm:gap-5 bg-white p-3 sm:p-4 rounded-sm border border-charcoal/5 shadow-sm">
                         {/* Product Image */}
                         <Image
-                          src={item.imageUrl}
-                          alt={item.name}
+                          src={item.imageUrl || '/placeholder-product.svg'}
+                          alt={item.name || 'Product'}
                           width={96}
                           height={128}
                           className="w-20 h-24 sm:w-24 sm:h-32 object-cover rounded-sm flex-shrink-0"
@@ -575,7 +575,7 @@ export default function CartPage() {
                 <div className="space-y-2.5 mb-4 sm:mb-6">
                   {cart.map((item, i) => (
                     <div key={i} className="flex gap-3 items-center">
-                      <Image src={item.imageUrl} alt={item.name} width={40} height={40} className="w-10 h-10 object-cover rounded-sm flex-shrink-0" />
+                      <Image src={item.imageUrl || '/placeholder-product.svg'} alt={item.name || 'Product'} width={40} height={40} className="w-10 h-10 object-cover rounded-sm flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-charcoal/70 truncate">{item.name}</p>
                         <p className="text-xs text-charcoal/40">Qty: {item.quantity}</p>

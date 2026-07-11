@@ -7,7 +7,7 @@ import {
   ChevronLeft, Eye, Truck, Shield, RotateCcw, Sparkles,
   MessageCircle, ArrowRight, Check, Camera, User, LogOut, Package
 } from "lucide-react";
-import { getProducts, getCategories, addOrder, getOrdersByPhone, addSubscriber, Product, Category } from "@/lib/firebase/services";
+import { subscribeToProducts, subscribeToCategories, addOrder, getOrdersByPhone, addSubscriber, Product, Category } from "@/lib/firebase/services";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
@@ -91,21 +91,34 @@ export default function StoreApp({
   const heroRef = useRef<HTMLDivElement>(null);
   const collectionRef = useRef<HTMLDivElement>(null);
 
-  // Fetch products and categories
+  // Fetch products and categories using subscriptions
   useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const [p, c] = await Promise.all([getProducts(), getCategories()]);
-        setProducts(p);
-        setCategories(c);
-      } catch (err) {
-        console.error("Failed to load data:", err);
-      } finally {
+    setIsLoading(true);
+    let productsLoaded = false;
+    let categoriesLoaded = false;
+
+    const checkLoading = () => {
+      if (productsLoaded && categoriesLoaded) {
         setIsLoading(false);
       }
-    }
-    loadData();
+    };
+
+    const unsubProducts = subscribeToProducts((p) => {
+      setProducts(p);
+      productsLoaded = true;
+      checkLoading();
+    });
+
+    const unsubCategories = subscribeToCategories((c) => {
+      setCategories(c);
+      categoriesLoaded = true;
+      checkLoading();
+    });
+
+    return () => {
+      unsubProducts();
+      unsubCategories();
+    };
   }, []);
 
   // Load cart & wishlist from localStorage
@@ -519,7 +532,7 @@ export default function StoreApp({
                 ) : (
                   filteredProducts.slice(0, 6).map((product) => (
                     <button key={product.id} onClick={() => { setQuickViewProduct(product); setIsSearchOpen(false); setSearchQuery(""); }} className="flex items-center gap-4 w-full p-3 hover:bg-cream/50 transition-colors rounded-sm">
-                      <Image src={product.imageUrl} alt={product.name} width={56} height={56} className="w-14 h-14 object-cover rounded-sm shrink-0" />
+                      <Image src={product.imageUrl || '/placeholder-product.svg'} alt={product.name || 'Product'} width={56} height={56} className="w-14 h-14 object-cover rounded-sm shrink-0" />
                       <div className="text-left">
                         <p className="font-serif text-charcoal">{product.name}</p>
                         <p className="text-sm text-charcoal/50">₹{product.price}{product.originalPrice && <span className="line-through ml-2">₹{product.originalPrice}</span>}</p>
@@ -652,8 +665,9 @@ export default function StoreApp({
                   {/* Background Image */}
                   <Image
                     src={category.imageUrl || "https://images.pexels.com/photos/4155252/pexels-photo-4155252.jpeg"}
-                    alt={category.name}
+                    alt={category.name || 'Category'}
                     fill
+                    priority={idx < 2}
                     sizes="(max-width: 640px) 256px, 320px"
                     className="object-cover transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 transform-gpu"
                   />
@@ -712,7 +726,7 @@ export default function StoreApp({
                 products.filter(p => p.onSale).map((product, idx) => (
                   <div key={product.id} className="snap-start shrink-0 w-[240px] sm:w-[300px] product-card-hover group h-full flex flex-col bg-ivory rounded-sm border border-gold/10 shadow-sm" style={{ transitionDelay: `${idx * 0.1}s` }}>
                     <div className="relative overflow-hidden rounded-t-sm aspect-[4/5] bg-cream-dark">
-                      <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 640px) 240px, 300px" className="product-image object-cover transition-transform duration-700" />
+                      <Image src={product.imageUrl || '/placeholder-product.svg'} alt={product.name || 'Product'} fill priority={idx < 4} sizes="(max-width: 640px) 240px, 300px" className="product-image object-cover transition-transform duration-700" />
                       <div className="absolute top-3 left-3 bg-rose text-white text-[10px] px-3 py-1 uppercase tracking-wider font-bold shadow-md">
                         SALE
                       </div>
@@ -803,7 +817,7 @@ export default function StoreApp({
                 <div key={product.id} className="product-card-hover group reveal h-full flex flex-col" style={{ transitionDelay: `${(idx % 4) * 0.1}s` }}>
                   {/* Product Image */}
                   <div className="relative overflow-hidden rounded-sm aspect-[3/4] bg-cream-dark mb-4">
-                    <Image src={product.imageUrl} alt={product.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-image object-cover transition-transform duration-700" />
+                    <Image src={product.imageUrl || '/placeholder-product.svg'} alt={product.name || 'Product'} fill priority={idx < 4} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-image object-cover transition-transform duration-700" />
 
                     {/* Hover Overlay */}
                     <div className="product-overlay absolute inset-0 bg-charcoal/10 opacity-0 transition-opacity duration-300 flex items-end justify-center pb-4 gap-2">
@@ -1178,7 +1192,7 @@ export default function StoreApp({
                 <div className="space-y-4">
                   {products.filter((p) => wishlist.includes(p.id)).map((product) => (
                     <div key={product.id} className="flex gap-4 items-center">
-                      <Image src={product.imageUrl} alt={product.name} width={64} height={80} className="w-16 h-20 object-cover rounded-sm shrink-0" />
+                      <Image src={product.imageUrl || '/placeholder-product.svg'} alt={product.name || 'Product'} width={64} height={80} className="w-16 h-20 object-cover rounded-sm shrink-0" />
                       <div className="flex-1">
                         <h4 className="font-serif text-sm text-charcoal">{product.name}</h4>
                         <p className="text-sm text-charcoal font-medium">₹{product.price}</p>
@@ -1203,7 +1217,7 @@ export default function StoreApp({
             <div className="grid md:grid-cols-2">
               {/* Image */}
               <div className="relative aspect-square md:aspect-auto md:min-h-[400px]">
-                <Image src={quickViewProduct.imageUrl} alt={quickViewProduct.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                <Image src={quickViewProduct.imageUrl || '/placeholder-product.svg'} alt={quickViewProduct.name || 'Product'} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                 <button onClick={() => setQuickViewProduct(null)} className="absolute top-4 right-4 w-8 h-8 bg-cream/90 rounded-full flex items-center justify-center text-charcoal hover:text-gold transition-colors shadow-sm">
                   <X className="w-4 h-4" />
                 </button>
