@@ -254,16 +254,16 @@ export default function ProductsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="font-serif text-2xl md:text-3xl font-bold text-charcoal tracking-wide">Products Manager</h1>
-        <div className="flex gap-2 sm:gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={openBulkAdd}
-            className="border border-gold text-gold-dark hover:bg-gold hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm transition-all duration-300 cursor-pointer text-xs sm:text-sm bg-ivory"
+            className="flex-1 sm:flex-none justify-center border border-gold text-gold-dark hover:bg-gold hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-sm transition-all duration-300 cursor-pointer text-xs sm:text-sm bg-ivory"
           >
             <Layers className="w-4 h-4" /> Bulk Add
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-gold hover:bg-gold-dark text-charcoal hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-md shadow-gold/15 transition-all duration-300 cursor-pointer text-xs sm:text-sm"
+            className="flex-1 sm:flex-none justify-center bg-gold hover:bg-gold-dark text-charcoal hover:text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg flex items-center gap-2 font-semibold shadow-md shadow-gold/15 transition-all duration-300 cursor-pointer text-xs sm:text-sm"
           >
             <Plus className="w-4 h-4 stroke-[3]" /> Add Product
           </button>
@@ -271,7 +271,7 @@ export default function ProductsPage() {
       </div>
 
       {/* ── DESKTOP TABLE ── */}
-      <div className="hidden md:block bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-x-auto">
+      <div className="hidden md:block bg-ivory border border-cream-dark rounded-xl shadow-sm overflow-x-auto w-full">
         <table className="w-full text-left border-collapse min-w-[750px]">
           <thead>
             <tr className="bg-cream-dark/30 border-b border-cream-dark text-xs text-charcoal-light uppercase tracking-wider font-semibold">
@@ -396,7 +396,7 @@ export default function ProductsPage() {
       {/* ── ADD / EDIT MODAL ── */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
-          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto">
+          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-[100vw] sm:max-w-2xl max-h-[92vh] overflow-y-auto overflow-x-hidden">
             <div className="flex justify-between items-center mb-5 border-b border-cream-dark/50 pb-4">
               <h2 className="font-serif text-xl sm:text-2xl font-bold text-charcoal">{editingId ? "Edit Product" : "Add New Product"}</h2>
               <button onClick={resetForm} className="text-charcoal-light/50 hover:text-charcoal transition-colors cursor-pointer">
@@ -525,7 +525,7 @@ export default function ProductsPage() {
       {/* ── BULK ADD MODAL ── */}
       {isBulkModalOpen && (
         <div className="fixed inset-0 bg-charcoal/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 animate-fade-in">
-          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full sm:max-w-6xl max-h-[92vh] flex flex-col">
+          <div className="bg-ivory border border-cream-dark rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 w-full max-w-[100vw] sm:max-w-6xl max-h-[92vh] flex flex-col overflow-hidden">
             <div className="flex justify-between items-center mb-5 border-b border-cream-dark/50 pb-4 flex-shrink-0">
               <div>
                 <h2 className="font-serif text-xl sm:text-2xl font-bold text-charcoal">Bulk Add Products</h2>
